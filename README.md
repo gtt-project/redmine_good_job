@@ -24,5 +24,10 @@ config.active_job.queue_adapter = :good_job
 config.good_job.execution_mode = ENV.fetch("GOOD_JOB_EXECUTION_MODE", 'async').to_sym
 config.good_job.max_threads = ENV.fetch("GOOD_JOB_MAX_THREADS", 2).to_i
 config.good_job.poll_interval = ENV.fetch("GOOD_JOB_POLL_INTERVAL", 10).to_i
+# Basic auth example
+GoodJob::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
+  ActiveSupport::SecurityUtils.secure_compare("test", username) &
+    ActiveSupport::SecurityUtils.secure_compare("goodjob", password)
+end
 ```
 5. Restart your Redmine instance
