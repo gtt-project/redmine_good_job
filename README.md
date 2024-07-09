@@ -31,3 +31,50 @@ GoodJob::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
 end
 ```
 5. Restart your Redmine instance
+
+## Another configuration
+
+### database.yml example:
+```yaml
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5).to_i + ENV.fetch("GOOD_JOB_MAX_THREADS", 2).to_i %>
+```
+
+### puma.rb example:
+
+```ruby
+# Set the number of Puma workers from an environment variable, defaulting to 3 if not set
+workers ENV.fetch("PUMA_WORKERS", 3).to_i
+
+before_fork do
+  require 'puma_worker_killer'
+
+  PumaWorkerKiller.config do |config|
+    config.ram = ENV.fetch('RAILS_MEMORY_LIMIT', 2048).to_i
+    config.frequency = 10
+    config.percent_usage = 0.8
+    config.rolling_restart_frequency = false
+    config.reaper_status_logs = false
+  end
+
+  PumaWorkerKiller.start
+
+  # Ensure GoodJob shuts down before forking
+  GoodJob.shutdown
+end
+
+on_worker_boot do
+  # Ensure GoodJob restarts after the worker boots
+  GoodJob.restart
+end
+
+on_worker_shutdown do
+  # Ensure GoodJob shuts down cleanly when a worker shuts down
+  GoodJob.shutdown
+end
+
+MAIN_PID = Process.pid
+at_exit do
+  # Ensure GoodJob shuts down when the main process exits
+  GoodJob.shutdown if Process.pid == MAIN_PID
+end
+```
