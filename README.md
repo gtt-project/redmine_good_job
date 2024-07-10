@@ -15,6 +15,7 @@ This plugin adds a job queue to Redmine using [GoodJob](https://github.com/bensh
 2. Run `bundle install`
 3. Run `bundle exec rake redmine:plugins:migrate`
 4. Configure good_job in your additional environment configuration file (e.g. `config/additional_environment.rb`):
+
 ```ruby
 # config/additional_environment.rb
 # Set the queue adapter to GoodJob
@@ -24,25 +25,21 @@ config.active_job.queue_adapter = :good_job
 config.good_job.execution_mode = ENV.fetch("GOOD_JOB_EXECUTION_MODE", 'async').to_sym
 config.good_job.max_threads = ENV.fetch("GOOD_JOB_MAX_THREADS", 2).to_i
 config.good_job.poll_interval = ENV.fetch("GOOD_JOB_POLL_INTERVAL", 10).to_i
-# Basic auth example
-GoodJob::Engine.middleware.use(Rack::Auth::Basic) do |username, password|
-  ActiveSupport::SecurityUtils.secure_compare("goodjob", username) &
-    ActiveSupport::SecurityUtils.secure_compare(ENV.fetch("GOOD_JOB_BASIC_AUTH_PASSWORD", "goodjob"), password)
-end
 ```
+
 5. Restart your Redmine instance
 
-## Another configuration
+## Other configurations
 
-### database.yml example:
+### `database.yml` example
+
 ```yaml
   pool: <%= ENV.fetch("RAILS_MAX_THREADS", 5).to_i + ENV.fetch("GOOD_JOB_MAX_THREADS", 2).to_i %>
 ```
 
-### puma.rb example:
+### `puma.rb` example
 
 ```ruby
-# Set the number of Puma workers from an environment variable, defaulting to 3 if not set
 workers ENV.fetch("PUMA_WORKERS", 3).to_i
 
 before_fork do
