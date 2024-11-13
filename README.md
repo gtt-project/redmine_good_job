@@ -4,8 +4,8 @@ This plugin adds a job queue to Redmine using [GoodJob](https://github.com/bensh
 
 ## Compatibility
 
-- GoodJob version: 4.0.2
-- Redmine version: 5.1.0
+- GoodJob version: 4.4.2
+- Redmine version: > 5.1.0
 - Ruby version: > 3.0
 - PostgreSQL version: > 12.0
 
